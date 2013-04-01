@@ -38,6 +38,7 @@ import
     Base.floor,
     Base.gcd,
     Base.gcdx,
+    Base.integer_valued,
     Base.isfinite,
     Base.isinf,
     Base.isnan,
@@ -229,6 +230,10 @@ function exponent(x::MPFRFloat)
     end
     # The '- 1' is to make it work as Base.exponent
     return ccall((:mpfr_get_exp, :libmpfr), Int, (Ptr{Void},), x.mpfr) - 1
+end
+
+function integer_valued(x::MPFRFloat)
+    return ccall((:mpfr_integer_p, :libmpfr), Int32, (Ptr{Void},), x.mpfr) != 0
 end
 
 isfinite(x::MPFRFloat) = !isinf(x)
