@@ -38,3 +38,6 @@ x = MPFRFloat(Inf)
 @test_fails exponent(x)
 x = MPFRFloat(15.674)
 @test exponent(x) == exponent(15.674)
+
+# sqrt DomainError
+@test_fails sqrt(MPFRFloat(-1))

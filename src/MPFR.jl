@@ -164,6 +164,9 @@ end
 function sqrt(x::MPFRFloat)
     z = MPFRFloat{DEFAULT_PRECISION}()
     ccall((:mpfr_sqrt, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Int32), z.mpfr, x.mpfr, ROUNDING_MODE)
+    if isnan(z)
+        throw(DomainError())
+    end
     return z
 end
 
