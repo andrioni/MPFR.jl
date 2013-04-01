@@ -98,3 +98,13 @@ imi = MPFRFloat(-Inf)
 @test !(z < z)
 @test !(z >= z)
 @test !(z > z)
+
+# modf
+x = MPFRFloat(12)
+y = MPFRFloat(0.5)
+@test modf(x+y) == (y, x)
+x = MPFRFloat(NaN)
+@test map(isnan, modf(x)) == (true, true)
+x = MPFRFloat(Inf)
+y = modf(x)
+@test (isnan(y[1]), isinf(y[2])) == (true, true)
