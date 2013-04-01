@@ -29,11 +29,13 @@ import
     Base.convert,
     Base.copysign,
     Base.div,
+    Base.exponent,
     Base.factorial,
     Base.fld,
     Base.floor,
     Base.gcd,
     Base.gcdx,
+    Base.isfinite,
     Base.isinf,
     Base.isnan,
     Base.lcm,
@@ -206,6 +208,19 @@ function copysign(x::MPFRFloat, y::MPFRFloat)
     z = MPFRFloat{DEFAULT_PRECISION}()
     ccall((:mpfr_copysign, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Ptr{Void}, Int32), z.mpfr, x.mpfr, y.mpfr, ROUNDING_MODE)
     return z
+end
+
+function exponent(x::MPFRFloat)
+    if x == 0 || !isfinite(x)
+        throw(DomainError())
+    end
+    # The '- 1' is to make it work as Base.exponent
+    return ccall((:mpfr_get_exp, :libmpfr), Int, (Ptr{Void},), x.mpfr) - 1
+end
+
+isfinite(x::MPFRFloat) = !isinf(x)
+function isinf(x::MPFRFloat)
+   return ccall((:mpfr_inf_p, :libmpfr), Int32, (Ptr{Void},), x.mpfr) != 0
 end
 
 # WARNING: it rounds to prec bits, and not to prec digits.
