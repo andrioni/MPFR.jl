@@ -204,11 +204,11 @@ function ^(x::MPFRFloat, y::BigInt)
 end
 
 # Utility functions
-==(x::MPFRFloat, y::MPFRFloat) = cmp(x,y) == 0
-<=(x::MPFRFloat, y::MPFRFloat) = cmp(x,y) <= 0
->=(x::MPFRFloat, y::MPFRFloat) = cmp(x,y) >= 0
-<(x::MPFRFloat, y::MPFRFloat) = cmp(x,y) < 0
->(x::MPFRFloat, y::MPFRFloat) = cmp(x,y) > 0
+==(x::MPFRFloat, y::MPFRFloat) = ccall((:mpfr_equal_p, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}), x.mpfr, y.mpfr) != 0
+<=(x::MPFRFloat, y::MPFRFloat) = ccall((:mpfr_lessequal_p, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}), x.mpfr, y.mpfr) != 0
+>=(x::MPFRFloat, y::MPFRFloat) = ccall((:mpfr_greaterequal_p, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}), x.mpfr, y.mpfr) != 0
+<(x::MPFRFloat, y::MPFRFloat) = ccall((:mpfr_less_p, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}), x.mpfr, y.mpfr) != 0
+>(x::MPFRFloat, y::MPFRFloat) = ccall((:mpfr_greater_p, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}), x.mpfr, y.mpfr) != 0
 
 function prec(x::MPFRFloat)
     return ccall((:mpfr_get_prec, :libmpfr), Int, (Ptr{Void},), x.mpfr)
