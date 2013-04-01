@@ -21,6 +21,16 @@ y = MPFRFloat(1)
 @test isnan(x) == true
 @test isnan(y) == false
 
+# convert to
+@test convert(MPFRFloat{53}, 1//2) == MPFRFloat("0.5")
+@test convert(MPFRFloat{53}, 0.5) == MPFRFloat("0.5")
+@test convert(MPFRFloat{53}, 40) == MPFRFloat("40")
+@test convert(MPFRFloat{53}, float32(0.5)) == MPFRFloat("0.5")
+
+# convert from
+@test convert(Float64, MPFRFloat(0.5)) == 0.5
+@test convert(Float32, MPFRFloat(0.5)) == float32(0.5)
+
 # exponent
 x = MPFRFloat(0)
 @test_fails exponent(x)

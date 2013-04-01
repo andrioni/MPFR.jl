@@ -125,15 +125,17 @@ end
 MPFRFloat(x::Float32) = MPFRFloat(float64(x))
 MPFRFloat(x::Rational) = MPFRFloat(num(x)) / MPFRFloat(den(x))
 
+# TODO: fix the precision support here
 convert{N}(::Type{MPFRFloat{N}}, x::Rational) = MPFRFloat(x) # to resolve ambiguity
 convert{N}(::Type{MPFRFloat{N}}, x::Real) = MPFRFloat(x)
 
 convert(::Type{Float64}, x::MPFRFloat) = ccall((:mpfr_get_d,:libmpfr), Float64, (Ptr{Void},), x.mpfr)
-#convert(::Type{Float32}, x::MPFRFloat) = ccall((:mpfr_get_flt,:libmpfr), Float32, (Ptr{Void},), x.mpfr)
+convert(::Type{Float32}, x::MPFRFloat) = ccall((:mpfr_get_flt,:libmpfr), Float32, (Ptr{Void},), x.mpfr)
 #convert(::Type{FloatingPoint}, x::BigInt) = MPFRFloat(x)
 
 promote_rule{T<:Union(Integer,FloatingPoint),N}(::Type{MPFRFloat{N}}, ::Type{T}) = MPFRFloat{N}
 
+# TODO: Decide if overwriting the default BigFloat rule is good
 #promote_rule{T<:FloatingPoint}(::Type{BigInt},::Type{T}) = MPFRFloat
 promote_rule{T<:FloatingPoint,N}(::Type{BigFloat},::Type{T}) = MPFRFloat{DEFAULT_PRECISION}
 
