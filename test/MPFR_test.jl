@@ -41,3 +41,12 @@ x = MPFRFloat(15.674)
 
 # sqrt DomainError
 @test_fails sqrt(MPFRFloat(-1))
+
+# precision
+old_precision = get_default_precision()
+x = MPFRFloat(0)
+@test prec(x) == old_precision
+set_default_precision(256)
+x = MPFRFloat(0)
+@test prec(x) == 256
+set_default_precision(old_precision)
