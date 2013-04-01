@@ -5,7 +5,6 @@ export
     prec,
     get_default_precision,
     set_default_precision,
-    set_prec,
     with_precision
     
 import
@@ -217,6 +216,9 @@ end
 
 get_default_precision() = DEFAULT_PRECISION[end]
 function set_default_precision(x::Int)
+    if x < 2
+        throw(DomainError())
+    end
     DEFAULT_PRECISION[end] = x
 end
 
@@ -269,6 +271,9 @@ end
 
 # WARNING: it rounds to prec bits, and not to prec digits.
 function round(x::MPFRFloat, prec::Int)
+    if prec < 2
+        throw(DomainError())
+    end
     z = MPFRFloat(x)
     ccall((:mpfr_prec_round, :libmpfr), Int32, (Ptr{Void}, Int, Int32), z.mpfr, prec, ROUNDING_MODE)
     return z

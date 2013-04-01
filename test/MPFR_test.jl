@@ -58,6 +58,7 @@ end
 @test prec(z) == 240
 x = MPFRFloat(12)
 @test prec(x) == old_precision
+@test_fails set_default_precision(1)
 
 # integer_valued
 @test integer_valued(MPFRFloat(12))
