@@ -190,16 +190,21 @@ function ^(x::MPFRFloat, y::BigInt)
     return z
 end
 
+# Utility functions
 ==(x::MPFRFloat, y::MPFRFloat) = cmp(x,y) == 0
 <=(x::MPFRFloat, y::MPFRFloat) = cmp(x,y) <= 0
 >=(x::MPFRFloat, y::MPFRFloat) = cmp(x,y) >= 0
 <(x::MPFRFloat, y::MPFRFloat) = cmp(x,y) < 0
 >(x::MPFRFloat, y::MPFRFloat) = cmp(x,y) > 0
 
-# Utility functions
-
 function prec(x::MPFRFloat)
     return ccall((:mpfr_get_prec, :libmpfr), Int, (Ptr{Void},), x.mpfr)
+end
+
+function copysign(x::MPFRFloat, y::MPFRFloat)
+    z = MPFRFloat{DEFAULT_PRECISION}()
+    ccall((:mpfr_copysign, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Ptr{Void}, Int32), z.mpfr, x.mpfr, y.mpfr, ROUNDING_MODE)
+    return z
 end
 
 # WARNING: it rounds to prec bits, and not to prec digits.
