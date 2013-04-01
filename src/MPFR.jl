@@ -220,7 +220,11 @@ end
 
 isfinite(x::MPFRFloat) = !isinf(x)
 function isinf(x::MPFRFloat)
-   return ccall((:mpfr_inf_p, :libmpfr), Int32, (Ptr{Void},), x.mpfr) != 0
+    return ccall((:mpfr_inf_p, :libmpfr), Int32, (Ptr{Void},), x.mpfr) != 0
+end
+
+function isnan(x::MPFRFloat)
+    return ccall((:mpfr_nan_p, :libmpfr), Int32, (Ptr{Void},), x.mpfr) != 0
 end
 
 # WARNING: it rounds to prec bits, and not to prec digits.

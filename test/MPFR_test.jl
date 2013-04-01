@@ -15,6 +15,12 @@ y = MPFRFloat(1)
 @test isfinite(x) == false
 @test isinf(x) == true
 
+# isnan
+x = MPFRFloat(NaN)
+y = MPFRFloat(1)
+@test isnan(x) == true
+@test isnan(y) == false
+
 # exponent
 x = MPFRFloat(0)
 @test_fails exponent(x)
