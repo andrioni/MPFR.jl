@@ -62,3 +62,12 @@ x = MPFRFloat(12)
 # integer_valued
 @test integer_valued(MPFRFloat(12))
 @test !integer_valued(MPFRFloat(12.12))
+
+# nextfloat / prevfloat
+with_precision(53) do
+    x = MPFRFloat(12.12)
+    @test MPFRFloat(nextfloat(12.12)) == nextfloat(x)
+    @test MPFRFloat(prevfloat(12.12)) == prevfloat(x)
+end
+@test nextfloat(MPFRFloat(NaN)) == NaN
+@test prevfloat(MPFRFloat(NaN)) == NaN

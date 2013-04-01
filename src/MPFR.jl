@@ -45,6 +45,8 @@ import
     Base.lcm,
     Base.mod,
     Base.ndigits,
+    Base.nextfloat,
+    Base.prevfloat,
     Base.promote_rule,
     Base.rem,
     Base.round,
@@ -243,6 +245,18 @@ end
 
 function isnan(x::MPFRFloat)
     return ccall((:mpfr_nan_p, :libmpfr), Int32, (Ptr{Void},), x.mpfr) != 0
+end
+
+function nextfloat(x::MPFRFloat)
+    z = MPFRFloat(x)
+   ccall((:mpfr_nextabove, :libmpfr), Int32, (Ptr{Void},), z.mpfr) != 0
+   return z
+end
+
+function prevfloat(x::MPFRFloat)
+    z = MPFRFloat(x)
+   ccall((:mpfr_nextbelow, :libmpfr), Int32, (Ptr{Void},), z.mpfr) != 0
+   return z
 end
 
 function with_precision(f::Function, precision::Integer)
