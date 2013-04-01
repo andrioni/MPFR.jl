@@ -50,3 +50,11 @@ set_default_precision(256)
 x = MPFRFloat(0)
 @test prec(x) == 256
 set_default_precision(old_precision)
+z = with_precision(240) do
+    z = x + 20
+    return z
+end
+@test float(z) == 20.
+@test prec(z) == 240
+x = MPFRFloat(12)
+@test prec(x) == old_precision

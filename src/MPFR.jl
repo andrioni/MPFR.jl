@@ -5,7 +5,8 @@ export
     prec,
     get_default_precision,
     set_default_precision,
-    set_prec
+    set_prec,
+    with_precision
     
 import
     Base.(*),
@@ -237,6 +238,14 @@ end
 
 function isnan(x::MPFRFloat)
     return ccall((:mpfr_nan_p, :libmpfr), Int32, (Ptr{Void},), x.mpfr) != 0
+end
+
+function with_precision(f::Function, precision::Integer)
+    old_precision = get_default_precision()
+    set_default_precision(precision)
+    ret = f()
+    set_default_precision(old_precision)
+    return ret
 end
 
 # WARNING: it rounds to prec bits, and not to prec digits.
