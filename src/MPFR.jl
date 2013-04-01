@@ -27,6 +27,7 @@ import
     Base.cmp,
     Base.complex,
     Base.convert,
+    Base.copysign,
     Base.div,
     Base.factorial,
     Base.fld,
