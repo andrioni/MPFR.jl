@@ -210,6 +210,12 @@ function modf(x::MPFRFloat)
     return (zfloat, zint)
 end
 
+function rem(x::MPFRFloat, y::MPFRFloat)
+    z = MPFRFloat{DEFAULT_PRECISION[end]}()
+    ccall((:mpfr_remainder, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Ptr{Void}, Int32), z.mpfr, x.mpfr, y.mpfr, ROUNDING_MODE)
+    return z
+end
+
 # Utility functions
 ==(x::MPFRFloat, y::MPFRFloat) = ccall((:mpfr_equal_p, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}), x.mpfr, y.mpfr) != 0
 <=(x::MPFRFloat, y::MPFRFloat) = ccall((:mpfr_lessequal_p, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}), x.mpfr, y.mpfr) != 0

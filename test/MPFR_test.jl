@@ -108,3 +108,17 @@ x = MPFRFloat(NaN)
 x = MPFRFloat(Inf)
 y = modf(x)
 @test (isnan(y[1]), isinf(y[2])) == (true, true)
+
+# rem
+with_precision(53) do
+    x = MPFRFloat(2)
+    y = MPFRFloat(1.67)
+    @test rem(x,y) == rem(2, 1.67)
+    y = MPFRFloat(NaN)
+    @test isnan(rem(x,y))
+    @test isnan(rem(y,x))
+    y = MPFRFloat(Inf)
+    @test rem(x,y) == x
+    @test isnan(rem(y,x))
+end
+
