@@ -42,7 +42,10 @@ import
     Base.isinf,
     Base.isnan,
     Base.lcm,
+    Base.max,
+    Base.min,
     Base.mod,
+    Base.modf,
     Base.ndigits,
     Base.nextfloat,
     Base.prevfloat,
@@ -203,7 +206,22 @@ function ^(x::MPFRFloat, y::BigInt)
     return z
 end
 
+function max(x::MPFRFloat, y::MPFRFloat)
+    z = MPFRFloat{DEFAULT_PRECISION[end]}()
+    ccall((:mpfr_max, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Ptr{Void}, Int32), z.mpfr, x.mpfr, y.mpfr, ROUNDING_MODE)
+    return z
+end
+
+function min(x::MPFRFloat, y::MPFRFloat)
+    z = MPFRFloat{DEFAULT_PRECISION[end]}()
+    ccall((:mpfr_min, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Ptr{Void}, Int32), z.mpfr, x.mpfr, y.mpfr, ROUNDING_MODE)
+    return z
+end
+
 function modf(x::MPFRFloat)
+    if isinf(x)
+        return (MPFRFloat(NaN), x)
+    end
     zint = MPFRFloat{DEFAULT_PRECISION[end]}()
     zfloat = MPFRFloat{DEFAULT_PRECISION[end]}()
     ccall((:mpfr_modf, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Ptr{Void}, Int32), zint.mpfr, zfloat.mpfr, x.mpfr, ROUNDING_MODE)

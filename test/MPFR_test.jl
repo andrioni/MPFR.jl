@@ -122,3 +122,14 @@ with_precision(53) do
     @test isnan(rem(y,x))
 end
 
+# min/max
+x = MPFRFloat(4)
+y = MPFRFloat(2)
+@test max(x,y) == x
+@test min(x,y) == y
+y = MPFRFloat(NaN)
+@test max(x,y) == x
+@test min(x,y) == x
+@test isnan(max(y,y))
+@test isnan(min(y,y))
+
