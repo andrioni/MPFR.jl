@@ -86,8 +86,8 @@ end
 
 MPFR_clear(mpfr::Vector{Int32}) = ccall((:mpfr_clear, :libmpfr), Void, (Ptr{Void},), mpfr)
 
-function MPFRFloat(x::MPFRFloat)
-    z = MPFRFloat(prec(x))
+function MPFRFloat{N}(x::MPFRFloat{N})
+    z = MPFRFloat{N}()
     ccall((:mpfr_set, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Int32), z.mpfr, x.mpfr, ROUNDING_MODE)
     return z
 end
