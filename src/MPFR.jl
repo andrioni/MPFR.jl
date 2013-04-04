@@ -50,13 +50,6 @@ const DEFAULT_PRECISION = [53]
 
 immutable MPFRFloat{N} <: FloatingPoint
     mpfr::Vector{Int32}
-    # function MPFRFloat()
-    #     z = Array(Int32, 5)
-    #     ccall((:mpfr_init,:libmpfr), Void, (Ptr{Void}, ), z)
-    #     b = new(z)
-    #     finalizer(b.mpfr, MPFR_clear)
-    #     return b
-    # end
     function MPFRFloat()
         if N < 2
             error("Invalid precision")
@@ -71,52 +64,55 @@ end
 
 MPFR_clear(mpfr::Vector{Int32}) = ccall((:mpfr_clear, :libmpfr), Void, (Ptr{Void},), mpfr)
 
-function MPFRFloat{N}(x::MPFRFloat{N})
-    z = MPFRFloat{N}()
+function MPFRFloat{N}(x::MPFRFloat{N}; precision=DEFAULT_PRECISION[end])
+    z = MPFRFloat{precision}()
     ccall((:mpfr_set, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Int32), z.mpfr, x.mpfr, ROUNDING_MORE[end])
     return z
 end
 
 for (fJ, fC) in ((:si,:Int), (:ui,:Uint), (:d,:Float64))
     @eval begin
-        function MPFRFloat(x::($fC))
-            z = MPFRFloat{DEFAULT_PRECISION[end]}()
+        function MPFRFloat(x::($fC); precision=DEFAULT_PRECISION[end])
+            z = MPFRFloat{precision}()
             ccall(($(string(:mpfr_set_,fJ)), :libmpfr), Int32, (Ptr{Void}, ($fC), Int32), z.mpfr, x, ROUNDING_MORE[end])   
             return z
         end
     end
 end
 
-function MPFRFloat(x::BigInt)
-    z = MPFRFloat{DEFAULT_PRECISION[end]}()
+function MPFRFloat(x::BigInt; precision=DEFAULT_PRECISION[end])
+    z = MPFRFloat{precision}()
     ccall((:mpfr_set_z, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Int32), z.mpfr, x.mpz, ROUNDING_MORE[end])   
     return z
 end
 
-function MPFRFloat(x::BigFloat)
-    z = MPFRFloat{DEFAULT_PRECISION[end]}()
+function MPFRFloat(x::BigFloat; precision=DEFAULT_PRECISION[end])
+    z = MPFRFloat{precision}()
     ccall((:mpfr_set_f, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Int32), z.mpfr, x.mpf, ROUNDING_MORE[end])   
     return z
 end
 
-function MPFRFloat(x::String, base::Int)
-    z = MPFRFloat{DEFAULT_PRECISION[end]}()
+function MPFRFloat(x::String, base=10::Int; precision=DEFAULT_PRECISION[end])
+    z = MPFRFloat{precision}()
     err = ccall((:mpfr_set_str, :libmpfr), Int32, (Ptr{Void}, Ptr{Uint8}, Int32, Int32), z.mpfr, x, base, ROUNDING_MORE[end])
     if err != 0; error("Invalid input"); end
     return z
 end
-MPFRFloat(x::String) = MPFRFloat(x, 10)
 
 
-MPFRFloat(x::Bool) = MPFRFloat(uint(x))
-MPFRFloat(x::Signed) = MPFRFloat(int(x))
-MPFRFloat(x::Unsigned) = MPFRFloat(uint(x))
+MPFRFloat(x::Bool; precision=DEFAULT_PRECISION[end]) = MPFRFloat(uint(x); precision=precision)
+MPFRFloat(x::Signed; precision=DEFAULT_PRECISION[end]) = MPFRFloat(int(x); precision=precision)
+MPFRFloat(x::Unsigned; precision=DEFAULT_PRECISION[end]) = MPFRFloat(uint(x); precision=precision)
 if WORD_SIZE == 32
-    MPFRFloat(x::Int64) = MPFRFloat(string(x))
-    MPFRFloat(x::Uint64) = MPFRFloat(BigInt(x))
+    MPFRFloat(x::Int64; precision=DEFAULT_PRECISION[end]) = MPFRFloat(string(x); precision=precision)
+    MPFRFloat(x::Uint64; precision=DEFAULT_PRECISION[end]) = MPFRFloat(BigInt(x); precision=precision)
 end
-MPFRFloat(x::Float32) = MPFRFloat(float64(x))
-MPFRFloat(x::Rational) = MPFRFloat(num(x)) / MPFRFloat(den(x))
+MPFRFloat(x::Float32; precision=DEFAULT_PRECISION[end]) = MPFRFloat(float64(x); precision=precision)
+function MPFRFloat(x::Rational; precision=DEFAULT_PRECISION[end])
+    with_precision(precision) do
+        MPFRFloat(num(x); precision=precision) / MPFRFloat(den(x); precision=precision)
+    end
+end
 
 # TODO: fix the precision support here
 convert{N}(::Type{MPFRFloat{N}}, x::Rational) = MPFRFloat(x) # to resolve ambiguity

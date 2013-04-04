@@ -21,6 +21,25 @@ y = MPFRFloat(float32(12.))
 y = MPFRFloat(12//1)
 @test x == y
 
+# basic constructor precision
+x = MPFRFloat(12)
+y = MPFRFloat(x; precision = 42)
+@test prec(y) == 42
+y = MPFRFloat(0xc; precision = 42)
+@test prec(y) == 42
+y = MPFRFloat(12.; precision = 42)
+@test prec(y) == 42
+y = MPFRFloat(BigInt(12); precision = 42)
+@test prec(y) == 42
+y = MPFRFloat(BigFloat(12); precision = 42)
+@test prec(y) == 42
+y = MPFRFloat("12"; precision = 42)
+@test prec(y) == 42
+y = MPFRFloat(float32(12.); precision = 42)
+@test prec(y) == 42
+y = MPFRFloat(12//1; precision = 42)
+@test prec(y) == 42
+
 # +
 x = MPFRFloat(12)
 y = MPFRFloat(30)
