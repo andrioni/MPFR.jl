@@ -1,6 +1,73 @@
 using Test
 using MPFR
 
+# constructors
+x = MPFRFloat{53}()
+x = MPFRFloat(12)
+y = MPFRFloat(x)
+@test x == y
+y = MPFRFloat(0xc)
+@test x == y
+y = MPFRFloat(12.)
+@test x == y
+y = MPFRFloat(BigInt(12))
+@test x == y
+y = MPFRFloat(BigFloat(12))
+@test x == y
+y = MPFRFloat("12")
+@test x == y
+y = MPFRFloat(float32(12.))
+@test x == y
+y = MPFRFloat(12//1)
+@test x == y
+
+# +
+x = MPFRFloat(12)
+y = MPFRFloat(30)
+@test x + y == MPFRFloat(42)
+
+# -
+x = MPFRFloat(12)
+y = MPFRFloat(-30)
+@test x - y == MPFRFloat(42)
+
+# *
+x = MPFRFloat(6)
+y = MPFRFloat(9)
+@test x * y != MPFRFloat(42)
+@test x * y == MPFRFloat(54)
+
+# /
+x = MPFRFloat(9)
+y = MPFRFloat(6)
+@test x / y == MPFRFloat(9/6)
+
+# < / > / <= / >=
+x = MPFRFloat(12)
+y = MPFRFloat(42)
+z = MPFRFloat(30)
+@test y > x
+@test y >= x
+@test y > z
+@test y >= z
+@test x < y
+@test x <= y
+@test z < y
+@test z <= y
+@test y - x >= z
+@test y - x <= z
+@test !(x >= z)
+@test !(y <= z)
+
+# ^
+x = MPFRFloat(12)
+y = MPFRFloat(4)
+@test x^y == MPFRFloat(20736)
+
+# ceil
+x = MPFRFloat(12.042)
+@test MPFRFloat(13) == ceil(x)
+
 # copysign
 x = MPFRFloat(1)
 y = MPFRFloat(-1)
