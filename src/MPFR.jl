@@ -13,8 +13,6 @@ import
     Base.-,
     Base./,
     Base.<,
-    Base.<<,
-    Base.>>,
     Base.<=,
     Base.==,
     Base.>,
