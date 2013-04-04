@@ -286,11 +286,11 @@ function with_precision(f::Function, precision::Integer)
     return ret
 end
 
-# WARNING: it rounds to prec bits, and not to prec digits.
 function round(x::MPFRFloat, prec::Int)
-    if prec < 2
+    if prec < 1
         throw(DomainError())
     end
+    prec = int(ceil(log2(10^prec)))
     z = MPFRFloat(x)
     ccall((:mpfr_prec_round, :libmpfr), Int32, (Ptr{Void}, Int, Int32), z.mpfr, prec, ROUNDING_MORE[end])
     return z
