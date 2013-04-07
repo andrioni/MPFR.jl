@@ -17,4 +17,4 @@ script:
     - julia -e "Pkg.init()"
     - mkdir -p ~/.julia/MPFR
     - cp -R ./* ~/.julia/MPFR/
-    - julia ~/.julia/JSON/test/MPFR_test.jl
+    - julia ~/.julia/MPFR/test/MPFR_test.jl
