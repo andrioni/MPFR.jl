@@ -65,8 +65,8 @@ end
 
 MPFR_clear(mpfr::Vector{Int32}) = ccall((:mpfr_clear, :libmpfr), Void, (Ptr{Void},), mpfr)
 
-function MPFRFloat{N}(x::MPFRFloat{N})
-    z = MPFRFloat{N}()
+function MPFRFloat(x::MPFRFloat)
+    z = MPFRFloat{DEFAULT_PRECISION[end]}()
     ccall((:mpfr_set, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Int32), z.mpfr, x.mpfr, ROUNDING_MODE[end])
     return z
 end
@@ -116,12 +116,18 @@ MPFRFloat(x::Rational) = MPFRFloat(num(x)) / MPFRFloat(den(x))
 convert{N}(::Type{MPFRFloat{N}}, x::Rational) = MPFRFloat(x) # to resolve ambiguity
 convert{N}(::Type{MPFRFloat{N}}, x::Real) = MPFRFloat(x)
 convert(::Type{MPFRFloat}, x::Real) = MPFRFloat(x)
+convert{N,T}(::Type{MPFRFloat{N}}, x::MPFRFloat{T}) = MPFRFloat(x)
 
 convert(::Type{Float64}, x::MPFRFloat) = ccall((:mpfr_get_d,:libmpfr), Float64, (Ptr{Void},), x.mpfr)
 convert(::Type{Float32}, x::MPFRFloat) = ccall((:mpfr_get_flt,:libmpfr), Float32, (Ptr{Void},), x.mpfr)
 
+# If two different precisions given, promote to the default
+promote_rule{T,S}(::Type{MPFRFloat{T}}, ::Type{MPFRFloat{S}}) =
+    MPFRFloat{DEFAULT_PRECISION[end]}
+
 promote_rule{T<:Real,N}(::Type{MPFRFloat{N}}, ::Type{T}) = MPFRFloat{N}
 promote_rule{T<:Real}(::Type{MPFRFloat}, ::Type{T}) = MPFRFloat
+
 
 # TODO: Decide if overwriting the default BigFloat rule is good
 #promote_rule{T<:FloatingPoint}(::Type{BigInt},::Type{T}) = MPFRFloat{DEFAULT_PRECISION[end]}
@@ -214,21 +220,11 @@ function rem(x::MPFRFloat, y::MPFRFloat)
     return z
 end
 
-function sum{N}(arr::AbstractArray{MPFRFloat{N}})
+function sum{T<:MPFRFloat}(arr::AbstractArray{T})
     z = MPFRFloat{DEFAULT_PRECISION[end]}()
     n = length(arr)
     ptrarr = [pointer(x.mpfr) for x in arr]
-    ccall((:mpfr_sum, :libmpfr), Int32, 
-        (Ptr{Void}, Ptr{Void}, Uint, Int32), 
-        z.mpfr, ptrarr, n, ROUNDING_MODE[1])
-    return z
-end
-
-function sum(arr::AbstractArray{MPFRFloat})
-    z = MPFRFloat{DEFAULT_PRECISION[end]}()
-    n = length(arr)
-    ptrarr = [pointer(x.mpfr) for x in arr]
-    ccall((:mpfr_sum, :libmpfr), Int32, 
+    ccall((:mpfr_sum, :libmpfr), Int32,
         (Ptr{Void}, Ptr{Void}, Uint, Int32), 
         z.mpfr, ptrarr, n, ROUNDING_MODE[1])
     return z
