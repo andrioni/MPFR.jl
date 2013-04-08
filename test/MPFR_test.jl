@@ -200,3 +200,11 @@ y = MPFRFloat(NaN)
 @test isnan(max(y,y))
 @test isnan(min(y,y))
 
+# sum
+x = MPFRFloat(1)
+y = MPFRFloat(2)
+z = MPFRFloat(3)
+w = MPFRFloat(4)
+@test fastsum([x,y,z,w]) == MPFRFloat(10)
+big_array = ones(MPFRFloat, 100)
+@test fastsum(big_array) == MPFRFloat(100)

@@ -39,11 +39,12 @@ import
     Base.round,
     Base.show,
     Base.showcompact,
+    Base.sum,
     Base.sqrt,
     Base.string,
     Base.trunc
 
-const ROUNDING_MORE = [0]
+const ROUNDING_MODE = [0]
 const DEFAULT_PRECISION = [53]
 
 # Basic type and initialization definitions
@@ -73,7 +74,7 @@ MPFR_clear(mpfr::Vector{Int32}) = ccall((:mpfr_clear, :libmpfr), Void, (Ptr{Void
 
 function MPFRFloat{N}(x::MPFRFloat{N})
     z = MPFRFloat{N}()
-    ccall((:mpfr_set, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Int32), z.mpfr, x.mpfr, ROUNDING_MORE[end])
+    ccall((:mpfr_set, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Int32), z.mpfr, x.mpfr, ROUNDING_MODE[end])
     return z
 end
 
@@ -81,7 +82,7 @@ for (fJ, fC) in ((:si,:Int), (:ui,:Uint), (:d,:Float64))
     @eval begin
         function MPFRFloat(x::($fC))
             z = MPFRFloat{DEFAULT_PRECISION[end]}()
-            ccall(($(string(:mpfr_set_,fJ)), :libmpfr), Int32, (Ptr{Void}, ($fC), Int32), z.mpfr, x, ROUNDING_MORE[end])   
+            ccall(($(string(:mpfr_set_,fJ)), :libmpfr), Int32, (Ptr{Void}, ($fC), Int32), z.mpfr, x, ROUNDING_MODE[end])   
             return z
         end
     end
@@ -89,19 +90,19 @@ end
 
 function MPFRFloat(x::BigInt)
     z = MPFRFloat{DEFAULT_PRECISION[end]}()
-    ccall((:mpfr_set_z, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Int32), z.mpfr, x.mpz, ROUNDING_MORE[end])   
+    ccall((:mpfr_set_z, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Int32), z.mpfr, x.mpz, ROUNDING_MODE[end])   
     return z
 end
 
 function MPFRFloat(x::BigFloat)
     z = MPFRFloat{DEFAULT_PRECISION[end]}()
-    ccall((:mpfr_set_f, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Int32), z.mpfr, x.mpf, ROUNDING_MORE[end])   
+    ccall((:mpfr_set_f, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Int32), z.mpfr, x.mpf, ROUNDING_MODE[end])   
     return z
 end
 
 function MPFRFloat(x::String, base::Int)
     z = MPFRFloat{DEFAULT_PRECISION[end]}()
-    err = ccall((:mpfr_set_str, :libmpfr), Int32, (Ptr{Void}, Ptr{Uint8}, Int32, Int32), z.mpfr, x, base, ROUNDING_MORE[end])
+    err = ccall((:mpfr_set_str, :libmpfr), Int32, (Ptr{Void}, Ptr{Uint8}, Int32, Int32), z.mpfr, x, base, ROUNDING_MODE[end])
     if err != 0; error("Invalid input"); end
     return z
 end
@@ -139,7 +140,7 @@ for (fJ, fC) in ((:+,:add), (:-,:sub), (:*,:mul), (:/,:div), (:^, :pow))
     @eval begin 
         function ($fJ)(x::MPFRFloat, y::MPFRFloat)
             z = MPFRFloat{DEFAULT_PRECISION[end]}()
-            ccall(($(string(:mpfr_,fC)),:libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Ptr{Void}, Int32), z.mpfr, x.mpfr, y.mpfr, ROUNDING_MORE[end])
+            ccall(($(string(:mpfr_,fC)),:libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Ptr{Void}, Int32), z.mpfr, x.mpfr, y.mpfr, ROUNDING_MODE[end])
             return z
         end
     end
@@ -147,7 +148,7 @@ end
 
 function -(x::MPFRFloat)
     z = MPFRFloat{DEFAULT_PRECISION[end]}()
-    ccall((:mpfr_neg, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Int32), z.mpfr, x.mpfr, ROUNDING_MORE[end])
+    ccall((:mpfr_neg, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Int32), z.mpfr, x.mpfr, ROUNDING_MODE[end])
     return z
 end
 
@@ -157,7 +158,7 @@ end
 
 function sqrt(x::MPFRFloat)
     z = MPFRFloat{DEFAULT_PRECISION[end]}()
-    ccall((:mpfr_sqrt, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Int32), z.mpfr, x.mpfr, ROUNDING_MORE[end])
+    ccall((:mpfr_sqrt, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Int32), z.mpfr, x.mpfr, ROUNDING_MODE[end])
     if isnan(z)
         throw(DomainError())
     end
@@ -176,31 +177,31 @@ end
 
 function ^(x::MPFRFloat, y::Uint)
     z = MPFRFloat{DEFAULT_PRECISION[end]}()
-    ccall((:mpfr_pow_ui, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Uint, Int32), z.mpfr, x.mpfr, y, ROUNDING_MORE[end])
+    ccall((:mpfr_pow_ui, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Uint, Int32), z.mpfr, x.mpfr, y, ROUNDING_MODE[end])
     return z
 end
 
 function ^(x::MPFRFloat, y::Int)
     z = MPFRFloat{DEFAULT_PRECISION[end]}()
-    ccall((:mpfr_pow_si, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Int, Int32), z.mpfr, x.mpfr, y, ROUNDING_MORE[end])
+    ccall((:mpfr_pow_si, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Int, Int32), z.mpfr, x.mpfr, y, ROUNDING_MODE[end])
     return z
 end
 
 function ^(x::MPFRFloat, y::BigInt)
     z = MPFRFloat{DEFAULT_PRECISION[end]}()
-    ccall((:mpfr_pow_z, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Ptr{Void}, Int32), z.mpfr, x.mpfr, y.mpz, ROUNDING_MORE[end])
+    ccall((:mpfr_pow_z, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Ptr{Void}, Int32), z.mpfr, x.mpfr, y.mpz, ROUNDING_MODE[end])
     return z
 end
 
 function max(x::MPFRFloat, y::MPFRFloat)
     z = MPFRFloat{DEFAULT_PRECISION[end]}()
-    ccall((:mpfr_max, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Ptr{Void}, Int32), z.mpfr, x.mpfr, y.mpfr, ROUNDING_MORE[end])
+    ccall((:mpfr_max, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Ptr{Void}, Int32), z.mpfr, x.mpfr, y.mpfr, ROUNDING_MODE[end])
     return z
 end
 
 function min(x::MPFRFloat, y::MPFRFloat)
     z = MPFRFloat{DEFAULT_PRECISION[end]}()
-    ccall((:mpfr_min, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Ptr{Void}, Int32), z.mpfr, x.mpfr, y.mpfr, ROUNDING_MORE[end])
+    ccall((:mpfr_min, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Ptr{Void}, Int32), z.mpfr, x.mpfr, y.mpfr, ROUNDING_MODE[end])
     return z
 end
 
@@ -210,13 +211,33 @@ function modf(x::MPFRFloat)
     end
     zint = MPFRFloat{DEFAULT_PRECISION[end]}()
     zfloat = MPFRFloat{DEFAULT_PRECISION[end]}()
-    ccall((:mpfr_modf, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Ptr{Void}, Int32), zint.mpfr, zfloat.mpfr, x.mpfr, ROUNDING_MORE[end])
+    ccall((:mpfr_modf, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Ptr{Void}, Int32), zint.mpfr, zfloat.mpfr, x.mpfr, ROUNDING_MODE[end])
     return (zfloat, zint)
 end
 
 function rem(x::MPFRFloat, y::MPFRFloat)
     z = MPFRFloat{DEFAULT_PRECISION[end]}()
-    ccall((:mpfr_remainder, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Ptr{Void}, Int32), z.mpfr, x.mpfr, y.mpfr, ROUNDING_MORE[end])
+    ccall((:mpfr_remainder, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Ptr{Void}, Int32), z.mpfr, x.mpfr, y.mpfr, ROUNDING_MODE[end])
+    return z
+end
+
+function sum{N}(arr::AbstractArray{MPFRFloat{N}})
+    z = MPFRFloat{DEFAULT_PRECISION[end]}()
+    n = length(arr)
+    ptrarr = [pointer(x.mpfr) for x in arr]
+    ccall((:mpfr_sum, :libmpfr), Int32, 
+        (Ptr{Void}, Ptr{Void}, Uint, Int32), 
+        z.mpfr, ptrarr, n, ROUNDING_MODE[1])
+    return z
+end
+
+function sum(arr::AbstractArray{MPFRFloat})
+    z = MPFRFloat{DEFAULT_PRECISION[end]}()
+    n = length(arr)
+    ptrarr = [pointer(x.mpfr) for x in arr]
+    ccall((:mpfr_sum, :libmpfr), Int32, 
+        (Ptr{Void}, Ptr{Void}, Uint, Int32), 
+        z.mpfr, ptrarr, n, ROUNDING_MODE[1])
     return z
 end
 
@@ -241,7 +262,7 @@ end
 
 function copysign(x::MPFRFloat, y::MPFRFloat)
     z = MPFRFloat{DEFAULT_PRECISION[end]}()
-    ccall((:mpfr_copysign, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Ptr{Void}, Int32), z.mpfr, x.mpfr, y.mpfr, ROUNDING_MORE[end])
+    ccall((:mpfr_copysign, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Ptr{Void}, Int32), z.mpfr, x.mpfr, y.mpfr, ROUNDING_MODE[end])
     return z
 end
 
@@ -292,7 +313,7 @@ function round(x::MPFRFloat, prec::Int)
     end
     prec = int(ceil(log2(10^prec)))
     z = MPFRFloat(x)
-    ccall((:mpfr_prec_round, :libmpfr), Int32, (Ptr{Void}, Int, Int32), z.mpfr, prec, ROUNDING_MORE[end])
+    ccall((:mpfr_prec_round, :libmpfr), Int32, (Ptr{Void}, Int, Int32), z.mpfr, prec, ROUNDING_MODE[end])
     return z
 end
 
