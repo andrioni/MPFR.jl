@@ -51,13 +51,6 @@ const DEFAULT_PRECISION = [53]
 
 immutable MPFRFloat{N} <: FloatingPoint
     mpfr::Vector{Int32}
-    # function MPFRFloat()
-    #     z = Array(Int32, 5)
-    #     ccall((:mpfr_init,:libmpfr), Void, (Ptr{Void}, ), z)
-    #     b = new(z)
-    #     finalizer(b.mpfr, MPFR_clear)
-    #     return b
-    # end
     function MPFRFloat()
         if N < 2
             error("Invalid precision")
