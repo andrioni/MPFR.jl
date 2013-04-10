@@ -347,6 +347,13 @@ function iround(x::MPFRFloat)
     return z
 end
 
+for (f,t) in ((:uint8,:Uint8), (:uint16,:Uint16), (:uint32,:Uint32),
+              (:int64,:Int64), (:uint64,:Uint64),
+              # requires int128/uint128(::Type{BigInt}) support
+              # (:int128,:Int128), (:uint128,:Uint128),
+              (:unsigned,:Uint), (:uint,:Uint))
+    @eval iround(::Type{$t}, x::MPFRFloat) = ($f)(iround(x))
+end
 
 isfinite(x::MPFRFloat) = !isinf(x)
 function isinf(x::MPFRFloat)

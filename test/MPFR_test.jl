@@ -257,3 +257,10 @@ end
 z = BigInt("9223372036854775809")
 @test iround(x) == 42
 @test iround(y) == z
+@test typeof(iround(Uint8, x)) == Uint8 && iround(Uint8, x) == 0x2a
+@test typeof(iround(Uint16, x)) == Uint16 && iround(Uint16, x) == 0x2a
+@test typeof(iround(Uint32, x)) == Uint32 && iround(Uint32, x) == 0x2a
+@test typeof(iround(Uint64, x)) == Uint64 && iround(Uint64, x) == 0x2a
+@test typeof(iround(Int64, x)) == Int64 && iround(Int64, x) == 42
+@test typeof(iround(Int, x)) == Int && iround(Int, x) == 42
+@test typeof(iround(Uint, x)) == Uint && iround(Uint, x) == 0x2a
