@@ -19,6 +19,12 @@ import
     Base.>,
     Base.>=,
     Base.^,
+    Base.besselj,
+    Base.besselj0,
+    Base.besselj1,
+    Base.bessely,
+    Base.bessely0,
+    Base.bessely1,
     Base.ceil,
     Base.cmp,
     Base.convert,
@@ -233,6 +239,44 @@ end
 function exp10(x::MPFRFloat)
     z = MPFRFloat{DEFAULT_PRECISION[end]}()
     ccall((:mpfr_exp10, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Int32), z.mpfr, x.mpfr, ROUNDING_MODE[end])
+    return z
+end
+
+function besselj0(x::MPFRFloat)
+    z = MPFRFloat{DEFAULT_PRECISION[end]}()
+    ccall((:mpfr_j0, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Int32), z.mpfr, x.mpfr, ROUNDING_MODE[end])
+    return z
+end
+
+function besselj1(x::MPFRFloat)
+    z = MPFRFloat{DEFAULT_PRECISION[end]}()
+    ccall((:mpfr_j1, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Int32), z.mpfr, x.mpfr, ROUNDING_MODE[end])
+    return z
+end
+
+function besselj(nu::Integer, x::MPFRFloat)
+    n = int64(nu)
+    z = MPFRFloat{DEFAULT_PRECISION[end]}()
+    ccall((:mpfr_jn, :libmpfr), Int32, (Ptr{Void}, Int64, Ptr{Void}, Int32), z.mpfr, n, x.mpfr, ROUNDING_MODE[end])
+    return z
+end
+
+function bessely0(x::MPFRFloat)
+    z = MPFRFloat{DEFAULT_PRECISION[end]}()
+    ccall((:mpfr_y0, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Int32), z.mpfr, x.mpfr, ROUNDING_MODE[end])
+    return z
+end
+
+function bessely1(x::MPFRFloat)
+    z = MPFRFloat{DEFAULT_PRECISION[end]}()
+    ccall((:mpfr_y1, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Int32), z.mpfr, x.mpfr, ROUNDING_MODE[end])
+    return z
+end
+
+function bessely(nu::Integer, x::MPFRFloat)
+    n = int64(nu)
+    z = MPFRFloat{DEFAULT_PRECISION[end]}()
+    ccall((:mpfr_yn, :libmpfr), Int32, (Ptr{Void}, Int64, Ptr{Void}, Int32), z.mpfr, n, x.mpfr, ROUNDING_MODE[end])
     return z
 end
 

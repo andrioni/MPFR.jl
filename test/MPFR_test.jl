@@ -274,3 +274,11 @@ with_precision(256) do
     @test_fails factorial(MPFRFloat(-1))
     @test_fails factorial(MPFRFloat(331.3))
 end
+
+# bessel functions
+@test_approx_eq besselj(4, MPFRFloat(2)) besselj(4, 2.)
+@test_approx_eq besselj0(MPFRFloat(2))  besselj0(2.)
+@test_approx_eq besselj1(MPFRFloat(2))  besselj1(2.)
+@test_approx_eq bessely(4, MPFRFloat(2))  bessely(4, 2.)
+@test_approx_eq bessely0(MPFRFloat(2))  bessely0(2.)
+@test_approx_eq bessely1(MPFRFloat(2))  bessely1(2.)
