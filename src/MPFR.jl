@@ -1,6 +1,7 @@
 module MPFR
 
 export
+    exp10,
     MPFRFloat,
     prec,
     get_default_precision,
@@ -22,6 +23,8 @@ import
     Base.cmp,
     Base.convert,
     Base.copysign,
+    Base.exp,
+    Base.exp2,
     Base.exponent,
     Base.floor,
     Base.integer_valued,
@@ -192,6 +195,24 @@ end
 function ^(x::MPFRFloat, y::BigInt)
     z = MPFRFloat{DEFAULT_PRECISION[end]}()
     ccall((:mpfr_pow_z, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Ptr{Void}, Int32), z.mpfr, x.mpfr, y.mpz, ROUNDING_MODE[end])
+    return z
+end
+
+function exp(x::MPFRFloat)
+    z = MPFRFloat{DEFAULT_PRECISION[end]}()
+    ccall((:mpfr_exp, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Int32), z.mpfr, x.mpfr, ROUNDING_MODE[end])
+    return z
+end
+
+function exp2(x::MPFRFloat)
+    z = MPFRFloat{DEFAULT_PRECISION[end]}()
+    ccall((:mpfr_exp2, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Int32), z.mpfr, x.mpfr, ROUNDING_MODE[end])
+    return z
+end
+
+function exp10(x::MPFRFloat)
+    z = MPFRFloat{DEFAULT_PRECISION[end]}()
+    ccall((:mpfr_exp10, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Int32), z.mpfr, x.mpfr, ROUNDING_MODE[end])
     return z
 end
 

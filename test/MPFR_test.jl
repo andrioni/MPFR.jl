@@ -229,3 +229,9 @@ x = MPFRFloat(42)
 @test isinf(log10(MPFRFloat(0)))
 @test_fails log10(MPFRFloat(-1))
 
+# exp / exp2 / exp10
+x = MPFRFloat(10)
+@test exp(x) == exp(10)
+@test exp2(x) == 1024
+@test exp10(x) == 10000000000
+
