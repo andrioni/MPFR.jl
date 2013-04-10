@@ -285,10 +285,16 @@ end
 
 # trigonometric functions
 for f in (:sin,:cos,:tan,:sec,:csc,:cot,:acos,:asin,:atan,
-        :cosh,:sinh,:tanh,:sech,:csch,:coth),
-    j in (.25, .5, 1.)
+        :cosh,:sinh,:tanh,:sech,:csch,:coth,:asinh),
+    j in (-1., -0.5, -0.25, .25, .5, 1.)
     @eval begin
         @test_approx_eq ($f)(MPFRFloat($j)) ($f)($j)
+    end
+end
+for f in (:acos,:asin,:acosh,:atanh),
+    j in (-2, -1.5)
+    @eval begin
+        @test_fails ($f)(MPFRFloat($j))
     end
 end
 for f in (:sin,:cos,:tan,:sec,:csc,:cot,:cosh,:sinh,:tanh,

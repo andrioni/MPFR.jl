@@ -375,13 +375,17 @@ function sum{T<:MPFRFloat}(arr::AbstractArray{T})
 end
 
 # Trigonometric functions
-# they currently return NaN for undefined values, instead of throwing an error
+# Every NaN is thrown as an error, and it follows somewhat closely
+# the Base functions behavior
 for f in (:sin,:cos,:tan,:sec,:csc,:cot,:acos,:asin,:atan,
         :cosh,:sinh,:tanh,:sech,:csch,:coth,:acosh,:asinh,:atanh)
     @eval begin
         function ($f)(x::MPFRFloat)
             z = MPFRFloat{DEFAULT_PRECISION[end]}()
             ccall(($(string(:mpfr_,f)), :libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Int32), z.mpfr, x.mpfr, ROUNDING_MODE[end])
+            if isnan(z)
+                throw(DomainError())
+            end
             return z
         end
     end
