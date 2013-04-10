@@ -249,3 +249,11 @@ y = MPFRFloat(42)
 @test convert(Uint32, y) == 42
 @test convert(Uint32, y) == 42
 
+# iround
+x = MPFRFloat(42.42)
+y = with_precision(256) do
+    MPFRFloat("9223372036854775809.2324")
+end
+z = BigInt("9223372036854775809")
+@test iround(x) == 42
+@test iround(y) == z

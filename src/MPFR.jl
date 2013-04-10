@@ -28,6 +28,7 @@ import
     Base.exponent,
     Base.floor,
     Base.integer_valued,
+    Base.iround,
     Base.isfinite,
     Base.isinf,
     Base.isnan,
@@ -126,16 +127,16 @@ convert{N,T}(::Type{MPFRFloat{N}}, x::MPFRFloat{T}) = MPFRFloat(x)
 
 
 convert(::Type{Int64}, x::MPFRFloat) = integer_valued(x) ?
-    ccall((:mpfr_get_si,:libmpfr), Int64, (Ptr{Void},), x.mpfr) :
+    ccall((:mpfr_get_si,:libmpfr), Int64, (Ptr{Void}, Int32), x.mpfr, ROUNDING_MODE[end]) :
     throw(InexactError())
 convert(::Type{Int32}, x::MPFRFloat) = int32(convert(Int64, x))
 convert(::Type{Uint64}, x::MPFRFloat) = integer_valued(x) ?
-    ccall((:mpfr_get_ui,:libmpfr), Uint64, (Ptr{Void},), x.mpfr) :
+    ccall((:mpfr_get_ui,:libmpfr), Uint64, (Ptr{Void}, Int32), x.mpfr, ROUNDING_MODE[end]) :
     throw(InexactError())
 function convert(::Type{BigInt}, x::MPFRFloat) 
     if integer_valued(x)
         z = BigInt()
-        ccall((:mpfr_get_z,:libmpfr), Int32, (Ptr{Void}, Ptr{Void}), z.mpz, x.mpfr)
+        ccall((:mpfr_get_z,:libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Int32), z.mpz, x.mpfr, ROUNDING_MODE[end])
         return z
     else
         throw(InexactError())
@@ -335,6 +336,17 @@ end
 function integer_valued(x::MPFRFloat)
     return ccall((:mpfr_integer_p, :libmpfr), Int32, (Ptr{Void},), x.mpfr) != 0
 end
+
+function iround(x::MPFRFloat)
+    fits = ccall((:mpfr_fits_slong_p, :libmpfr), Int32, (Ptr{Void}, Int32), x.mpfr, ROUNDING_MODE[end])
+    if fits != 0
+        return ccall((:mpfr_get_si, :libmpfr), Int64, (Ptr{Void}, Int32), x.mpfr, ROUNDING_MODE[end])
+    end
+    z = BigInt()
+    ccall((:mpfr_get_z, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Int32), z.mpz, x.mpfr, ROUNDING_MODE[end])
+    return z
+end
+
 
 isfinite(x::MPFRFloat) = !isinf(x)
 function isinf(x::MPFRFloat)
