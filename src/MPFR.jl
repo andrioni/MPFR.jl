@@ -56,7 +56,26 @@ import
     Base.sum,
     Base.sqrt,
     Base.string,
-    Base.trunc
+    Base.trunc,
+    # import trigonometric functions
+    Base.sin,
+    Base.cos,
+    Base.tan,
+    Base.sec,
+    Base.csc,
+    Base.cot,
+    Base.acos,
+    Base.asin,
+    Base.atan,
+    Base.cosh,
+    Base.sinh,
+    Base.tanh,
+    Base.sech,
+    Base.csch,
+    Base.coth,
+    Base.acosh,
+    Base.asinh,
+    Base.atanh
 
 const ROUNDING_MODE = [0]
 const DEFAULT_PRECISION = [53]
@@ -353,6 +372,19 @@ function sum{T<:MPFRFloat}(arr::AbstractArray{T})
         (Ptr{Void}, Ptr{Void}, Uint, Int32), 
         z.mpfr, ptrarr, n, ROUNDING_MODE[1])
     return z
+end
+
+# Trigonometric functions
+# they currently return NaN for undefined values, instead of throwing an error
+for f in (:sin,:cos,:tan,:sec,:csc,:cot,:acos,:asin,:atan,
+        :cosh,:sinh,:tanh,:sech,:csch,:coth,:acosh,:asinh,:atanh)
+    @eval begin
+        function ($f)(x::MPFRFloat)
+            z = MPFRFloat{DEFAULT_PRECISION[end]}()
+            ccall(($(string(:mpfr_,f)), :libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Int32), z.mpfr, x.mpfr, ROUNDING_MODE[end])
+            return z
+        end
+    end
 end
 
 # Utility functions

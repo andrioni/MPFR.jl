@@ -282,3 +282,22 @@ end
 @test_approx_eq bessely(4, MPFRFloat(2))  bessely(4, 2.)
 @test_approx_eq bessely0(MPFRFloat(2))  bessely0(2.)
 @test_approx_eq bessely1(MPFRFloat(2))  bessely1(2.)
+
+# trigonometric functions
+for f in (:sin,:cos,:tan,:sec,:csc,:cot,:acos,:asin,:atan,
+        :cosh,:sinh,:tanh,:sech,:csch,:coth),
+    j in (.25, .5, 1.)
+    @eval begin
+        @test_approx_eq ($f)(MPFRFloat($j)) ($f)($j)
+    end
+end
+for f in (:sin,:cos,:tan,:sec,:csc,:cot,:cosh,:sinh,:tanh,
+        :sech,:csch,:coth,:acosh,:asinh),
+    j in (1., 1.5, 1.9)
+    @eval begin
+        @test_approx_eq ($f)(MPFRFloat($j)) ($f)($j)
+    end
+end
+for j in (.25, .5)
+    @test_approx_eq atanh(MPFRFloat(j)) atanh(j)
+end
