@@ -264,3 +264,13 @@ z = BigInt("9223372036854775809")
 @test typeof(iround(Int64, x)) == Int64 && iround(Int64, x) == 42
 @test typeof(iround(Int, x)) == Int && iround(Int, x) == 42
 @test typeof(iround(Uint, x)) == Uint && iround(Uint, x) == 0x2a
+
+# factorial
+with_precision(256) do
+    x = MPFRFloat(42)
+    @test factorial(x) == factorial(BigInt(42))
+    x = MPFRFloat(10)
+    @test factorial(x) == factorial(10)
+    @test_fails factorial(MPFRFloat(-1))
+    @test_fails factorial(MPFRFloat(331.3))
+end

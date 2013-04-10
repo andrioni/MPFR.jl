@@ -26,6 +26,7 @@ import
     Base.exp,
     Base.exp2,
     Base.exponent,
+    Base.factorial,
     Base.floor,
     Base.integer_valued,
     Base.iround,
@@ -232,6 +233,16 @@ end
 function exp10(x::MPFRFloat)
     z = MPFRFloat{DEFAULT_PRECISION[end]}()
     ccall((:mpfr_exp10, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Int32), z.mpfr, x.mpfr, ROUNDING_MODE[end])
+    return z
+end
+
+function factorial(x::MPFRFloat)
+    if x < 0 || !integer_valued(x)
+        throw(DomainError())
+    end
+    ui = uint64(x)
+    z = MPFRFloat{DEFAULT_PRECISION[end]}()
+    ccall((:mpfr_fac_ui, :libmpfr), Int32, (Ptr{Void}, Uint64, Int32), z.mpfr, ui, ROUNDING_MODE[end])
     return z
 end
 
