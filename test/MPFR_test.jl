@@ -208,3 +208,24 @@ w = MPFRFloat(4)
 @test sum([x,y,z,w]) == MPFRFloat(10)
 big_array = ones(MPFRFloat, 100)
 @test sum(big_array) == MPFRFloat(100)
+
+# promotion
+# the array converts everyone to the DEFAULT_PRECISION!
+x = MPFRFloat(12)
+y = with_precision(60) do
+    MPFRFloat(42)
+end
+@test [x,y] == [MPFRFloat(12), MPFRFloat(42)]
+
+# log / log2 / log10
+x = MPFRFloat(42)
+@test log(x) == log(42)
+@test isinf(log(MPFRFloat(0)))
+@test_fails log(MPFRFloat(-1))
+@test log2(x) == log2(42)
+@test isinf(log2(MPFRFloat(0)))
+@test_fails log2(MPFRFloat(-1))
+@test log10(x) == log10(42)
+@test isinf(log10(MPFRFloat(0)))
+@test_fails log10(MPFRFloat(-1))
+

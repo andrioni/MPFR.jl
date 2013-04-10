@@ -28,6 +28,9 @@ import
     Base.isfinite,
     Base.isinf,
     Base.isnan,
+    Base.log,
+    Base.log2,
+    Base.log10,
     Base.max,
     Base.min,
     Base.mod,
@@ -189,6 +192,33 @@ end
 function ^(x::MPFRFloat, y::BigInt)
     z = MPFRFloat{DEFAULT_PRECISION[end]}()
     ccall((:mpfr_pow_z, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Ptr{Void}, Int32), z.mpfr, x.mpfr, y.mpz, ROUNDING_MODE[end])
+    return z
+end
+
+function log(x::MPFRFloat)
+    if x < 0
+        throw(DomainError())
+    end
+    z = MPFRFloat{DEFAULT_PRECISION[end]}()
+    ccall((:mpfr_log, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Int32), z.mpfr, x.mpfr, ROUNDING_MODE[end])
+    return z
+end
+
+function log2(x::MPFRFloat)
+    if x < 0
+        throw(DomainError())
+    end
+    z = MPFRFloat{DEFAULT_PRECISION[end]}()
+    ccall((:mpfr_log2, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Int32), z.mpfr, x.mpfr, ROUNDING_MODE[end])
+    return z
+end
+
+function log10(x::MPFRFloat)
+    if x < 0
+        throw(DomainError())
+    end
+    z = MPFRFloat{DEFAULT_PRECISION[end]}()
+    ccall((:mpfr_log10, :libmpfr), Int32, (Ptr{Void}, Ptr{Void}, Int32), z.mpfr, x.mpfr, ROUNDING_MODE[end])
     return z
 end
 
