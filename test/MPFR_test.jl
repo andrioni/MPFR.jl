@@ -235,3 +235,17 @@ x = MPFRFloat(10)
 @test exp2(x) == 1024
 @test exp10(x) == 10000000000
 
+# convert to integer types
+x = MPFRFloat(12.1)
+y = MPFRFloat(42)
+@test_fails convert(Int32, x)
+@test_fails convert(Int64, x)
+@test_fails convert(BigInt, x)
+@test_fails convert(Uint32, x)
+@test_fails convert(Uint32, x)
+@test convert(Int32, y) == 42
+@test convert(Int64, y) == 42
+@test convert(BigInt, y) == 42
+@test convert(Uint32, y) == 42
+@test convert(Uint32, y) == 42
+

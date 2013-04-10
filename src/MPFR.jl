@@ -124,6 +124,24 @@ convert{N}(::Type{MPFRFloat{N}}, x::Real) = MPFRFloat(x)
 convert(::Type{MPFRFloat}, x::Real) = MPFRFloat(x)
 convert{N,T}(::Type{MPFRFloat{N}}, x::MPFRFloat{T}) = MPFRFloat(x)
 
+
+convert(::Type{Int64}, x::MPFRFloat) = integer_valued(x) ?
+    ccall((:mpfr_get_si,:libmpfr), Int64, (Ptr{Void},), x.mpfr) :
+    throw(InexactError())
+convert(::Type{Int32}, x::MPFRFloat) = int32(convert(Int64, x))
+convert(::Type{Uint64}, x::MPFRFloat) = integer_valued(x) ?
+    ccall((:mpfr_get_ui,:libmpfr), Uint64, (Ptr{Void},), x.mpfr) :
+    throw(InexactError())
+function convert(::Type{BigInt}, x::MPFRFloat) 
+    if integer_valued(x)
+        z = BigInt()
+        ccall((:mpfr_get_z,:libmpfr), Int32, (Ptr{Void}, Ptr{Void}), z.mpz, x.mpfr)
+        return z
+    else
+        throw(InexactError())
+    end
+end
+convert(::Type{Uint32}, x::MPFRFloat) = uint32(convert(Int64, x))
 convert(::Type{Float64}, x::MPFRFloat) = ccall((:mpfr_get_d,:libmpfr), Float64, (Ptr{Void},), x.mpfr)
 convert(::Type{Float32}, x::MPFRFloat) = ccall((:mpfr_get_flt,:libmpfr), Float32, (Ptr{Void},), x.mpfr)
 
